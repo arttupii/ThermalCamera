@@ -4,6 +4,7 @@ This is a simple thermal camera based arduino nano and AMG8833.
 
 Features:
 - Interpolate 8x8 grid to 64x64 in real-time (arduino nano)
+- TODO
 
 Components:
 - Arduino nano (https://www.banggood.com/ATmega328P-Nano-V3-Controller-Board-Compatible-Arduino-p-940937.html?rmmds=search)
@@ -14,7 +15,10 @@ Components:
 - 9V battery (https://www.banggood.com/9v-Universal-Eastpower-Battery-for-Multimeter-Thermometer,etc-p-78472.html?rmmds=search&cur_warehouse=CN)
 - Hard Plastic 9V Battery T-type Snap On Connector (https://www.banggood.com/5pcs-Hard-Plastic-9V-Battery-T-type-Snap-On-Connector-150mm-Wire-Cable-Lead-p-945189.html?rmmds=search&cur_warehouse=CN)
 
-
+Dependencies:
+ - Adafruit_GFX (https://github.com/adafruit/Adafruit-GFX-Library)
+ - Adafruit_SSD1331 (https://github.com/adafruit/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino)
+ - Adafruit_AMG88xx (https://github.com/adafruit/Adafruit_AMG88xx)
 
 Video:
 
