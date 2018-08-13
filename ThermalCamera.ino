@@ -118,6 +118,10 @@ void setup(void) {
   digitalWrite(5, LOW);
 }
 
+#define AMG88xx_MAX_TEMP 80
+#define AMG88xx_MIN_TEMP 0
+
+
 inline uint16_t getColorIndex(int x, int y) {
   if (x < 0 || x >= 8) {
     x = 7;
@@ -125,7 +129,13 @@ inline uint16_t getColorIndex(int x, int y) {
   if (y < 0 || y >= 8) {
     y = 7;
   }
-  uint16_t colorIndex = map(pixels[x + y * 8], minTemp, maxTemp, 0, 255);
+  float t = pixels[x + y * 8];
+
+  if(t<AMG88xx_MIN_TEMP) return 0;
+  if(t>AMG88xx_MAX_TEMP) return 255;
+  
+  
+  uint16_t colorIndex = map(t, minTemp, maxTemp, 0, 255);
   if (colorIndex > 255) {
     colorIndex = 255;
   }
@@ -137,13 +147,17 @@ uint16_t color8x8 [8 * 8];
 
 bool interpolationEnabled = true;
 
+
+
 void loop() {
   amg.readPixels(pixels);
   int16_t x = 0;
   int16_t y = 0;
   for (int16_t i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
 
-
+      x = i % 8;
+      y = i / 8;
+      
     if (interpolationEnabled) {
       //Interpolation START... 8x8 pixels
       //   c0------------------c1
@@ -154,8 +168,7 @@ void loop() {
       //    |                  |
       //    |                  |
       //   c2------------------c3
-      x = i % 8;
-      y = i / 8;
+
 
 #if 0
       int16_t c0 = getColorIndex(x, y);
@@ -176,8 +189,11 @@ void loop() {
       //Interpolation END
     } else {
       uint16_t colorIndex = map(pixels[i], minTemp, maxTemp, 0, 255);
-      if (colorIndex > 255) {
+      if (pixels[i] > 80) {
         colorIndex = 255;
+      }
+      if (pixels[i] < 0) {
+        colorIndex = 0;
       }
       for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
@@ -201,10 +217,7 @@ void loop() {
       }
       //Interpolation END
     } else {
-      uint16_t colorIndex = map(pixels[i], minTemp, maxTemp, 0, 255);
-      if (colorIndex > 255) {
-        colorIndex = 255;
-      }
+      uint16_t colorIndex = getColorIndex(x, y);
       for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
           color8x8[x + y * 8] = camColors[colorIndex];
@@ -337,11 +350,11 @@ bool menu(bool initialize) {
     } else {
       updateValues = false;
     }
-    if (minTemp < 0) {
-      minTemp = 0;
+    if (minTemp < AMG88xx_MIN_TEMP) {
+      minTemp = AMG88xx_MAX_TEMP;
     }
-    if (maxTemp > 80) {
-      maxTemp = 80;
+    if (maxTemp > AMG88xx_MAX_TEMP) {
+      maxTemp = AMG88xx_MAX_TEMP;
     }
   } while (updateValues);
   return true;
@@ -363,18 +376,32 @@ void updateInfoText() {
       max = pixels[i];
     }
   }
+
   setCursorAndClean(0, 0, RED);
   display.print("Max:");
   setCursorAndClean(1, 0, RED);
-  display.print(max);
+  if(max>=AMG88xx_MIN_TEMP && max<=AMG88xx_MAX_TEMP) {
+    display.print(max);
+  } else {
+    display.print("---");
+  }
   setCursorAndClean(2, 0, BLUE);
   display.print("Min:");
   setCursorAndClean(3, 0, BLUE);
-  display.print(min);
+  if(min>=AMG88xx_MIN_TEMP && min<=AMG88xx_MAX_TEMP) {
+    display.print(min);
+  } else {
+    display.print("---");
+  }
   setCursorAndClean(4);
   display.print("-----");
   setCursorAndClean(5);
-  display.print((pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4);
+  float t = pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4;
+  if(t>=AMG88xx_MIN_TEMP && t<=AMG88xx_MAX_TEMP) {
+    display.print((pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4);
+  } else  {
+    display.print("---");
+  }
 }
 
 
