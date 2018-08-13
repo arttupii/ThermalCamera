@@ -207,12 +207,14 @@ void loop() {
       uint8_t c2 = getColorIndex(x, y + 1);
       uint8_t c3 = getColorIndex(x + 1, y + 1);
 
+      uint16_t c00_t = (c0 - c2) / 8;
+      uint16_t c11_t = (c1 - c3) / 8;
       for (y = 0; y < 8; y++) {
-        uint8_t c00 = c0 - (c0 - c2) / 8 * (y);
-        uint8_t c11 = c1 - (c1 - c3) / 8 * (y);
-
+        uint8_t c00 = c0 - c00_t * (y);
+        uint8_t c11 = c1 - c11_t * (y);
+        uint16_t vv =(c00 - c11) / 8;
         for (x = 0; x < 8; x++) {
-          color8x8[x + y * 8] = camColors[c00 - (c00 - c11) / 8 * (x)];
+          color8x8[x + y * 8] = camColors[c00 - vv * x];
         }
       }
       //Interpolation END
@@ -396,10 +398,10 @@ void updateInfoText() {
   setCursorAndClean(4);
   display.print("-----");
   setCursorAndClean(5);
-  float t = pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4;
-  if(t>=AMG88xx_MIN_TEMP && t<=AMG88xx_MAX_TEMP) {
-    display.print((pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4);
-  } else  {
+  float av = (pixels[28] + pixels[29] + pixels[36] + pixels[37]) / 4;
+  if(av>=AMG88xx_MIN_TEMP && av<=AMG88xx_MAX_TEMP) {
+    display.print(av);
+  }else{
     display.print("---");
   }
 }
